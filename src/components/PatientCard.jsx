@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 // import { useReactToPrint } from 'react-to-print';
-import PatientQR from './PatientQr';
+import PatientQR from './PatientQR';
+
 
 const PatientCard = ({ patient }) => {
   const cardRef = useRef();
