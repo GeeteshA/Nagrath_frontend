@@ -24,7 +24,7 @@ const App = () => {
         <Route path="/admin/profile" element={<ProfileSection />} />
         <Route path="/admin/patients" element={<PatientList />} />
         <Route path="/admin/patients/:id" element={<PatientDetails />} />
-        <Route path="/public-patient/:id" element={<PublicPatientDetails />} />
+        <Route path="/public/patient/:id" element={<PublicPatientDetails />} />
         <Route path='/admin/patients/search' element={<PatientSearch />} /> 
         <Route path='/super-admin/dashboard' element={<SuperAdminDashboard/>} />
         <Route path="*" element={<NotFound />} />

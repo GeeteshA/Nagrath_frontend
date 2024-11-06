@@ -58,7 +58,7 @@ export const getPatientById = async (id, token) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log("Response data:", response.data);
+    // console.log("Response data:", response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching patient:', error.response?.data || error.message);
@@ -80,7 +80,7 @@ export const deletePatient = async (id, token) => {
   }
 };
 
-// Update an existing patient
+// Update existing patient
 export const updatePatient = async (id, patientData, token) => {
   try {
     const response = await axios.put(`${BASE_URL}/${id}`, patientData, {
@@ -131,7 +131,7 @@ export const fetchQRCode = async (patientId, token) => {
     return qrData;
   } catch (error) {
     console.error("Error fetching QR code:", error);
-    throw error; // Rethrow error to handle it in the component
+    throw error;
   }
 };
 
