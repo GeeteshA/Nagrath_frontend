@@ -12,21 +12,104 @@ import Dashboard from './components/Dashboard';
 import PatientSearch from './components/PatientSearch';
 import PublicPatientDetails from './components/PublicPatientDetails';
 
+
+// PrivateRoute component for protected routes
+const PrivateRoute = ({ children }) => {
+  const isAuthenticated = localStorage.getItem('user');
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
 const App = () => {
+  const isAuthenticated = localStorage.getItem('user');
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/admin/create-patient" element={<CreatePatient />} />
-        <Route path="/admin/dashboard" element={<Dashboard />} />
-        <Route path="/admin/patients/:id/edit" element={<UpdatePatient />} />
-        <Route path="/admin/profile" element={<ProfileSection />} />
-        <Route path="/admin/patients" element={<PatientList />} />
-        <Route path="/admin/patients/:id" element={<PatientDetails />} />
-        <Route path="/public-patient/:id" element={<PublicPatientDetails />} />
-        <Route path='/admin/patients/search' element={<PatientSearch />} /> 
-        <Route path='/super-admin/dashboard' element={<SuperAdminDashboard/>} />
+        {/* Redirect to dashboard if authenticated, otherwise to login */}
+        <Route 
+          path="/" 
+          element={isAuthenticated ? <Navigate to="/admin/dashboard" /> : <Login />} 
+        />
+        <Route 
+          path="/login" 
+          element={isAuthenticated ? <Navigate to="/admin/dashboard" /> : <Login />} 
+        />
+
+        {/* Protected Routes for Admins */}
+        <Route 
+          path="/admin/dashboard" 
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/admin/create-patient" 
+          element={
+            <PrivateRoute>
+              <CreatePatient />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/admin/patients/:id/edit" 
+          element={
+            <PrivateRoute>
+              <UpdatePatient />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/admin/profile" 
+          element={
+            <PrivateRoute>
+              <ProfileSection />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/admin/patients" 
+          element={
+            <PrivateRoute>
+              <PatientList />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/admin/patients/:id" 
+          element={
+            <PrivateRoute>
+              <PatientDetails />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/admin/patients/search" 
+          element={
+            <PrivateRoute>
+              <PatientSearch />
+            </PrivateRoute>
+          } 
+        />
+
+        {/* Super Admin Route */}
+        <Route 
+          path="/super-admin/dashboard" 
+          element={
+            <PrivateRoute>
+              <SuperAdminDashboard />
+            </PrivateRoute>
+          } 
+        />
+
+        {/* Public Route */}
+        <Route 
+          path="/public-patient/:id" 
+          element={<PublicPatientDetails />} 
+        />
+
+        {/* Fallback for unknown routes */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
