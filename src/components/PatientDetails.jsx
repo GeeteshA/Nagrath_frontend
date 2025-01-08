@@ -1,233 +1,266 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { deletePatient, getPatientById } from '../api/patientService';
-import { FaUserEdit, FaTrash } from 'react-icons/fa';
-import { useReactToPrint } from 'react-to-print';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getPatientById, updatePatient } from '../api/patientService';
 import SuperAdminLayout from './Layouts/SuperAdminLayout';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography,
-} from '@mui/material';
-import PatientCard from './PatientCard';
 
-const PatientDetails = () => {
+const UpdatePatient = () => {
   const { id } = useParams();
-  const [patient, setPatient] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const componentRef = useRef();
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: '',
+    age: '',
+    mobile: '',
+    address: '',
+    addressLine1: '',
+    pincode: '',
+    gender: '',
+    dateOfBirth: '',
+    aadharNumber: '',
+    city: '',
+    district: '',
+    state: '',
+    country: '',
+    photo: '',
+    bloodPressure: { value: '', range: '', unit: '' },
+    heartRate: { value: '', range: '', unit: '' },
+    hemoglobin: { value: '', range: '', unit: '' },
+    fastingBloodSugar: { value: '', range: '', unit: '' },
+    medicalHistory: {
+      currentMedication: { value: '', range: '', unit: '' },
+      previousCondition: { value: '', range: '', unit: '' },
+      vaccination: { value: '', range: '', unit: '' }
+    }
+  });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     const fetchPatient = async () => {
       try {
-        const storedUser = JSON.parse(localStorage.getItem('user'));
-        if (storedUser?.token) {
-          const token = storedUser.token;
-          const data = await getPatientById(id, token);
-          setPatient(data);
-        } else {
-          throw new Error('No token found');
-        }
-      } catch (error) {
-        console.error('Error fetching patient:', error);
-        setError('Failed to load patient details');
-      } finally {
-        setLoading(false);
+        const token = JSON.parse(localStorage.getItem('user')).token;
+        const patientData = await getPatientById(id, token);
+        setFormData({
+          ...formData,
+          ...patientData,
+          dateOfBirth: patientData.dateOfBirth?.split('T')[0] || '',
+          hemoglobin: patientData.hemoglobin || { value: '', range: '', unit: '' },
+          bloodPressure: patientData.bloodPressure || { value: '', range: '', unit: '' },
+          heartRate: patientData.heartRate || { value: '', range: '', unit: '' },
+          fastingBloodSugar: patientData.fastingBloodSugar || { value: '', range: '70-100', unit: 'mg/dL' }, 
+          calcium: patientData.calcium || { value: '', range: '', unit: '' }, 
+          medicalHistory: {
+            currentMedication: patientData.medicalHistory?.currentMedication || { value: '', range: '', unit: '' },
+            previousCondition: patientData.medicalHistory?.previousCondition || { value: '', range: '', unit: '' },
+            vaccination: patientData.medicalHistory?.vaccination || { value: '', range: '', unit: '' }
+          }
+        });
+      } catch (err) {
+        console.error('Error fetching patient details:', err);
+        setError('Error fetching patient details');
       }
     };
     fetchPatient();
   }, [id]);
 
-  const renderField = (field) => field || 'N/A';
-
-  const renderTestRow = (label, test) => (
-    <TableRow key={label}>
-      <TableCell className="border border-gray-400"><strong>{label}:</strong></TableCell>
-      <TableCell className="border border-gray-400">{renderField(test?.value)}</TableCell>
-      <TableCell className="border border-gray-400">{renderField(test?.range)}</TableCell>
-      <TableCell className="border border-gray-400">{renderField(test?.unit)}</TableCell>
-    </TableRow>
-  );
-
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-  })
-
-  const handleDelete = async (id) => {
-    try {
-      const token = JSON.parse(localStorage.getItem('user')).token;
-      await deletePatient(id, token);
-      navigate('/admin/patients'); // Redirect to patient list after deletion
-    } catch (error) {
-      console.error("Error deleting patient:", error);
-      setError("Failed to delete patient");
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    const nameParts = name.split('.');
+    if (nameParts.length === 2) {
+      setFormData((prevData) => ({
+        ...prevData,
+        [nameParts[0]]: {
+          ...prevData[nameParts[0]],
+          [nameParts[1]]: value
+        }
+      }));
+    } else if (nameParts.length === 3) {
+      setFormData((prevData) => ({
+        ...prevData,
+        [nameParts[0]]: {
+          ...prevData[nameParts[0]],
+          [nameParts[1]]: {
+            ...prevData[nameParts[0]][nameParts[1]],
+            [nameParts[2]]: value
+          }
+        }
+      }));
+    } else {
+      setFormData({ ...formData, [name]: value || '' });
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-gray-600 text-xl">Loading patient details...</p>
-      </div>
-    );
-  }
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFormData({ ...formData, photo: file });
+  };
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-red-600 text-xl">{error}</p>
-      </div>
-    );
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = JSON.parse(localStorage.getItem('user')).token;
+      await updatePatient(id, formData, token);
+      setSuccess('Patient updated successfully');
+      navigate('/admin/patients');
+    } catch (err) {
+      console.error('Error updating patient:', err);
+      setError('Error updating patient');
+    }
+  };
 
   return (
     <SuperAdminLayout>
+      <div className="p-6 bg-white rounded-lg shadow-md max-w-2xl mx-auto mt-6 mb-6">
+        <h1 className="text-2xl font-bold text-center mb-4 text-gray-800">Update Patient</h1>
+        {error && <p className="text-red-600 text-center mb-4">{error}</p>}
+        {success && <p className="text-green-600 text-center mb-4">{success}</p>}
 
-      {/* Patient Card */}
-    <div>
-        <div ref={componentRef}>
-        <PatientCard patient={patient} />
-      </div>
-        {/* <button onClick={handlePrint}>Print Patient Card</button> */}
-      </div>
-
-      {/* General Information Table */}
-      <TableContainer component={Paper} className="p-4 mb-6 mt-5">
-        <Typography variant="h6" gutterBottom>Patient Information</Typography>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell className="border border-gray-400"><strong>Field</strong></TableCell>
-              <TableCell className="border border-gray-400"><strong>Details</strong></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {[
-              { label: 'Name', value: patient.name },
-              { label: 'Age', value: patient.age },
-              { label: 'Gender', value: patient.gender },
-              { label: 'Date of Birth', value: patient.dateOfBirth },
-              { label: 'Mobile', value: patient.mobile },
-              { label: 'Aadhar Number', value: patient.aadharNumber },
-              { label: 'Address', value: patient.address },
-              { label: 'City', value: patient.city },
-              { label: 'Pincode', value: patient.pincode },
-              { label: 'District', value: patient.district },
-              { label: 'State', value: patient.state },
-              { label: 'Country', value: patient.country },
-            ].map(({ label, value }, index) => (
-              <TableRow key={index}>
-                <TableCell className="border border-gray-400"><strong>{label}:</strong></TableCell>
-                <TableCell className="border border-gray-400">{renderField(value)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* Tests and Measurements Table */}
-      <TableContainer component={Paper} className="p-4 mb-6">
-        <Typography variant="h6" gutterBottom>Tests and Measurements</Typography>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell className="border border-gray-400"><strong>Test</strong></TableCell>
-              <TableCell className="border border-gray-400"><strong>Value</strong></TableCell>
-              <TableCell className="border border-gray-400"><strong>Range</strong></TableCell>
-              <TableCell className="border border-gray-400"><strong>Unit</strong></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {renderTestRow("Blood Pressure", patient.bloodPressure)}
-            {renderTestRow("Heart Rate", patient.heartRate)}
-            {renderTestRow("Weight", patient.weight)}
-            {renderTestRow("Hemoglobin", patient.hemoglobin)}
-            {renderTestRow("Blood Group", patient.bloodGroup)}
-            {renderTestRow("Fasting Blood Sugar", patient.fastingBloodSugar)}
-            {renderTestRow("CBC", patient.cbc)}
-            {renderTestRow("Urinalysis", patient.urinalysis)}
-            {renderTestRow("Serum Electrolytes", patient.serumElectrolytes)}
-            {renderTestRow("Lipid Profile", patient.lipidProfile)}
-            {renderTestRow("TSH", patient.tsh)}
-            {renderTestRow("SGPT", patient.sgpt)}
-            {renderTestRow("Platelet Count", patient.platelet)}
-            {renderTestRow("HIV", patient.hiv)}
-            {renderTestRow("Chronic Disease", patient.chronicDisease)}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* Medical History Table */}
-      <TableContainer component={Paper} className="p-4 mb-6">
-        <Typography variant="h6" gutterBottom>Medical History</Typography>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell className="border border-gray-400"><strong>Category</strong></TableCell>
-              <TableCell className="border border-gray-400"><strong>Value</strong></TableCell>
-              <TableCell className="border border-gray-400"><strong>Range</strong></TableCell>
-              <TableCell className="border border-gray-400"><strong>Unit</strong></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {renderTestRow("Current Medication", patient.medicalHistory?.currentMedication)}
-            {renderTestRow("Previous Condition", patient.medicalHistory?.previousCondition)}
-            {renderTestRow("Vaccination", patient.medicalHistory?.vaccination)}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      <div className="flex gap-5 px-10 pb-5 justify-end">
-        <button
-          onClick={() => navigate(`/admin/patients/${patient._id}/edit`)}
-          className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-        >
-          <FaUserEdit className="mr-2" /> Edit
-        </button>
-        <button
-          onClick={() => handleDelete(patient._id)}
-          className="flex items-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
-        >
-          <FaTrash className="mr-2" /> Delete
-        </button>
-      </div>
-
-
-
-      {/* Document photos */}
-      <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4">Document Files</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {Array.isArray(patient.documentFile) && patient.documentFile.length > 0 ? (
-            patient.documentFile.map((doc, index) => (
-              <img
-                key={index}
-                src={`data:${doc.contentType};base64,${Buffer.from(doc.data).toString('base64')}`}
-                alt={`Document ${index + 1}`}
-                className="w-32 h-32 object-cover rounded-lg border"
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* General Information Fields */}
+            {['name', 'age', 'mobile', 'bloodGroup', 'address', 'addressLine1', 'pincode', 'gender', 'dateOfBirth', 'aadharNumber', 'city', 'district', 'state', 'country'].map((field) => (
+              <input
+                key={field}
+                type={field === 'age' || field === 'pincode' ? 'number' : field === 'dateOfBirth' ? 'date' : 'text' ? 'bloodGroup' : 'text' }
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                required
+                className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:border-[#ff6015]"
               />
-            ))
-          ) : patient.documentFile && patient.documentFile.data ? (
-            <img
-              src={`data:${patient.documentFile.contentType};base64,${Buffer.from(patient.documentFile.data).toString('base64')}`}
-              alt="Document File"
-              className="w-32 h-32 object-cover rounded-lg border"
-            />
-          ) : (
-            <p className="text-gray-500">No document files available</p>
-          )}
-        </div>
-      </div>
+            ))}
+          </div>
 
+          {/* Photo Upload and Preview */}
+          <div className="mt-4">
+            {formData.photo && typeof formData.photo === 'string' && (
+              <img src={`data:image/jpeg;base64,${formData.photo}`} alt="Patient" className="mb-2 rounded-lg w-24 h-24 object-cover" />
+            )}
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#302C51] file:text-white hover:file:bg-[#ff471a]"
+            />
+          </div>
+
+          {/* Medical Reports Table */}
+          <div className="overflow-auto">
+            <table className="w-full border border-gray-300 mt-4 text-sm">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-2 border border-gray-300">Name of Test</th>
+                  <th className="p-2 border border-gray-300">Observed Value</th>
+                  <th className="p-2 border border-gray-300">Unit</th>
+                  <th className="p-2 border border-gray-300">Normal Range</th>
+                </tr>
+              </thead>
+              <tbody>
+                {['hemoglobin', 'bloodPressure', 'heartRate', 'fastingBloodSugar' , 'calcium' ].map((test) => (
+                  <tr key={test}>
+                    <td className="p-2 border">{test.charAt(0).toUpperCase() + test.slice(1)}</td>
+                    <td className="p-2 border">
+                      <input
+                        type="text"
+                        name={`${test}.value`}
+                        value={formData[test]?.value || ''}
+                        onChange={handleChange}
+                        className="border border-gray-300 p-2 rounded w-full"
+                        required
+                      />
+                    </td>
+                    <td className="p-2 border">
+                      <input
+                        type="text"
+                        name={`${test}.unit`}
+                        value={formData[test]?.unit || ''}
+                        onChange={handleChange}
+                        className="border border-gray-300 p-2 rounded w-full"
+                        required
+                      />
+                    </td>
+                    <td className="p-2 border">
+                      <input
+                        type="text"
+                        name={`${test}.range`}
+                        value={formData[test]?.range || ''}
+                        onChange={handleChange}
+                        className="border border-gray-300 p-2 rounded w-full"
+                        required
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Medical History Table */}
+          {/* <table className="w-full border-collapse border border-gray-300 mt-4">
+            <thead>
+              <tr className="bg-gray-200 text-left">
+                <th className="p-2 border border-gray-300 font-semibold">Medical History</th>
+                <th className="p-2 border border-gray-300 font-semibold">Observed Values</th>
+                <th className="p-2 border border-gray-300 font-semibold">Unit</th>
+                <th className="p-2 border border-gray-300 font-semibold">Normal Range</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { label: 'Current Medication', name: 'currentMedication' },
+                { label: 'Previous Condition', name: 'previousCondition' },
+                { label: 'Vaccination', name: 'vaccination' }
+              ].map((item) => (
+                <tr key={item.name} className="border border-gray-300">
+                  <td className="p-2 border border-gray-300 font-medium">{item.label}</td>
+                  <td className="p-2 border border-gray-300">
+                    <input
+                      type="text"
+                      name={`medicalHistory.${item.name}.value`}
+                      value={formData.medicalHistory[item.name]?.value || ''}
+                      onChange={handleChange}
+                      placeholder={`Enter ${item.label}`}
+                      required
+                      className="w-full border p-2"
+                    />
+                  </td>
+                  <td className="p-2 border border-gray-300">
+                    <input
+                      name={`medicalHistory.${item.name}.unit`}
+                      value={formData.medicalHistory[item.name]?.unit || ''}
+                      onChange={handleChange}
+                      placeholder="Unit"
+                      required
+                      className="w-full border p-2"
+                    />
+                  </td>
+                  <td className="p-2 border border-gray-300">
+                    <input
+                      type="text"
+                      name={`medicalHistory.${item.name}.range`}
+                      value={formData.medicalHistory[item.name]?.range || ''}
+                      onChange={handleChange}
+                      placeholder="Range"
+                      required
+                      className="w-full border p-2"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table> */}
+
+          <div className="text-center mt-6">
+            <button
+              type="submit"
+              className="px-6 py-2 bg-[#ff6015] text-white font-bold rounded hover:bg-[#ff471a] focus:outline-none"
+            >
+              Update Patient
+            </button>
+          </div>
+        </form>
+      </div>
     </SuperAdminLayout>
   );
 };
 
-export default PatientDetails;
+export default UpdatePatient;
