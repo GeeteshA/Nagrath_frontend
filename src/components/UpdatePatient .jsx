@@ -23,24 +23,13 @@ const UpdatePatient = () => {
     photo: '',
     bloodPressure: { value: '', range: '', unit: '' },
     heartRate: { value: '', range: '', unit: '' },
-    weight: { value: '', range: '', unit: '' },
     hemoglobin: { value: '', range: '', unit: '' },
-    bloodGroup: { value: '', range: '', unit: '' },
-    fastingBloodSugar: { value: '', range: '', unit: '' },
-    cbc: { value: '', range: '', unit: '' },
-    urinalysis: { value: '', range: '', unit: '' },
-    serumElectrolytes: { value: '', range: '', unit: '' },
-    lipidProfile: { value: '', range: '', unit: '' },
-    tsh: { value: '', range: '', unit: '' },
-    sgpt: { value: '', range: '', unit: '' },
-    platelet: { value: '', range: '', unit: '' },
-    hiv: { value: '', range: '', unit: '' },
-    chronicDisease: { value: '', range: '', unit: '' },
-    medicalHistory: {
-      currentMedication: { value: '', range: '', unit: '' },
-      previousCondition: { value: '', range: '', unit: '' },
-      vaccination: { value: '', range: '', unit: '' }
-    }
+    fastingBloodSugar: { value: '', range: '', unit: '' }
+    // medicalHistory: {
+    //   currentMedication: { value: '', range: '', unit: '' },
+    //   previousCondition: { value: '', range: '', unit: '' },
+    //   vaccination: { value: '', range: '', unit: '' }
+    // }
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -54,22 +43,11 @@ const UpdatePatient = () => {
           ...formData,
           ...patientData,
           dateOfBirth: patientData.dateOfBirth?.split('T')[0] || '',
+          hemoglobin: patientData.hemoglobin || { value: '', range: '', unit: '' },
           bloodPressure: patientData.bloodPressure || { value: '', range: '', unit: '' },
           heartRate: patientData.heartRate || { value: '', range: '', unit: '' },
-          weight: patientData.weight || { value: '', range: '', unit: '' },
-          hemoglobin: patientData.hemoglobin || { value: '', range: '', unit: '' },
-          bloodGroup: patientData.bloodGroup || { value: '', range: '', unit: '' },
-          fastingBloodSugar: patientData.fastingBloodSugar || { value: '', range: '', unit: '' },
-          cbc: patientData.cbc || { value: '', range: '', unit: '' },
-          urinalysis: patientData.urinalysis || { value: '', range: '', unit: '' },
-          serumElectrolytes: patientData.serumElectrolytes || { value: '', range: '', unit: '' },
-          lipidProfile: patientData.lipidProfile || { value: '', range: '', unit: '' },
-          tsh: patientData.tsh || { value: '', range: '', unit: '' },
-          photo: patientData.photo || '',
-          sgpt: patientData.sgpt || { value: '', range: '', unit: '' },
-          platelet: patientData.platelet || { value: '', range: '', unit: '' },
-          hiv: patientData.hiv || { value: '', range: '', unit: '' },
-          chronicDisease: patientData.chronicDisease || { value: '', range: '', unit: '' },
+          fastingBloodSugar: patientData.fastingBloodSugar || { value: '', range: '70-100', unit: 'mg/dL' }, 
+          calcium: patientData.calcium || { value: '', range: '', unit: '' }, 
           medicalHistory: {
             currentMedication: patientData.medicalHistory?.currentMedication || { value: '', range: '', unit: '' },
             previousCondition: patientData.medicalHistory?.previousCondition || { value: '', range: '', unit: '' },
@@ -139,10 +117,10 @@ const UpdatePatient = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* General Information Fields */}
-            {['name', 'age', 'mobile', 'address', 'addressLine1', 'pincode', 'gender', 'dateOfBirth', 'aadharNumber', 'city', 'district', 'state', 'country'].map((field) => (
+            {['name', 'age', 'mobile', 'bloodGroup', 'address', 'addressLine1', 'pincode', 'gender', 'dateOfBirth', 'aadharNumber', 'city', 'district', 'state', 'country'].map((field) => (
               <input
                 key={field}
-                type={field === 'age' || field === 'pincode' ? 'number' : field === 'dateOfBirth' ? 'date' : 'text'}
+                type={field === 'age' || field === 'pincode' ? 'number' : field === 'dateOfBirth' ? 'date' : 'text' ? 'bloodGroup' : 'text' }
                 name={field}
                 value={formData[field]}
                 onChange={handleChange}
@@ -177,7 +155,7 @@ const UpdatePatient = () => {
                 </tr>
               </thead>
               <tbody>
-                {['hemoglobin', 'bloodGroup', 'bloodPressure', 'heartRate', 'weight', 'fastingBloodSugar', 'cbc', 'urinalysis', 'serumElectrolytes', 'lipidProfile', 'tsh', 'sgpt', 'platelet', 'hiv', 'chronicDisease'].map((test) => (
+                {['hemoglobin', 'bloodPressure', 'heartRate', 'fastingBloodSugar' , 'calcium' ].map((test) => (
                   <tr key={test}>
                     <td className="p-2 border">{test.charAt(0).toUpperCase() + test.slice(1)}</td>
                     <td className="p-2 border">
@@ -217,7 +195,7 @@ const UpdatePatient = () => {
           </div>
 
           {/* Medical History Table */}
-          <table className="w-full border-collapse border border-gray-300 mt-4">
+          {/* <table className="w-full border-collapse border border-gray-300 mt-4">
             <thead>
               <tr className="bg-gray-200 text-left">
                 <th className="p-2 border border-gray-300 font-semibold">Medical History</th>
@@ -269,7 +247,7 @@ const UpdatePatient = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table> */}
 
           <div className="text-center mt-6">
             <button
