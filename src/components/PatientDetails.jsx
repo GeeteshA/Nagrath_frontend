@@ -36,8 +36,8 @@ const PatientDetails = () => {
             urineTest: data.urineTest || {},
             bloodCbc: data.bloodCbc || {},
             lipidProfile: data.lipidProfile || {},
-            tshTest: data.tshTest || {},
-            medicalHistory: data.medicalHistory || {},
+            tshTest: data.tshTest || {}
+            // medicalHistory: data.medicalHistory || {},
           });
           
         } else {
@@ -269,7 +269,7 @@ const PatientDetails = () => {
       </TableContainer>
 
       {/* Medical History Table */}
-      <TableContainer component={Paper} className="p-4 mb-6">
+      {/* <TableContainer component={Paper} className="p-4 mb-6">
         <Typography variant="h6" gutterBottom>Medical History</Typography>
         <Table>
           <TableHead>
@@ -286,7 +286,7 @@ const PatientDetails = () => {
             {renderTestRow("Vaccination", patient.medicalHistory?.vaccination)}
           </TableBody>
         </Table>
-      </TableContainer>
+      </TableContainer> */}
 
       <div className="flex gap-5 px-10 pb-5 justify-end">
         <button
