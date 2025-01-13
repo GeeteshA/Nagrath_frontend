@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { createPatient } from '../api/patientService';
 import SuperAdminLayout from './Layouts/SuperAdminLayout';
 
-
 const CreatePatient = () => {
   const [formData, setFormData] = useState({
     hemoglobin: { value: '', range: '13.5-17.5', unit: 'g/dl' },
@@ -61,17 +60,17 @@ const CreatePatient = () => {
       hivFirst: { value: '', unit: 'fl', range: 'Non - Reactive' },
       hivSecond: { value: '', unit: 'fl', range: 'Non - Reactive' },
       HBA1C: { value: '', unit: '%', options: ['Non-Diabetic: 4-6', 'Excellent Control: 6-7', 'Fair to Good Control: 7-8', 'Unsatisfactory Control: 8-10', 'Poor Control: >10'] },
-    },
-    medicalHistory: {
-      currentMedication: { value: '', range: '', unit: '' },
-    },
+    }
+    // medicalHistory: {
+    //   currentMedication: { value: '', range: '', unit: '' },
+    // },
   });
 
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  const bloodGroups = ['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'AB-', 'O', '-O'];
+  const bloodGroups = ['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'AB-', 'O', 'O-'];
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     const file = files[0];
@@ -755,7 +754,7 @@ const CreatePatient = () => {
           </table>
 
           {/* Medical History Table */}
-          <h2 className="text-lg font-semibold mt-8 mb-4">Medical History</h2>
+          {/* <h2 className="text-lg font-semibold mt-8 mb-4">Medical History</h2>
           <table className="w-full border-collapse border border-gray-300">
             <thead>
               <tr className="bg-gray-200 text-left">
@@ -808,7 +807,7 @@ const CreatePatient = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table> */}
           {/* Document File Field */}
           {/* Document Upload */}
           <div>
