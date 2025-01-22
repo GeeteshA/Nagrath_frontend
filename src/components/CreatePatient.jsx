@@ -3,9 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { createPatient } from '../api/patientService';
 import SuperAdminLayout from './Layouts/SuperAdminLayout';
 
-
 const CreatePatient = () => {
   const [formData, setFormData] = useState({
+    name: '',
+    age: '',
+    mobile: '',
+    address: '',
+    addressLine1: '',
+    pincode: '',
+    gender: '',
+    dateOfBirth: '',
+    aadharNumber: '',
+    city: '',
+    district: '',
+    state: '',
+    country: '',
     hemoglobin: { value: '', range: '13.5-17.5', unit: 'g/dl' },
     bloodPressure: { value: '', range: '120/80', unit: 'mmHg' },
     heartRate: { value: '', range: '60-100', unit: 'bpm' },
@@ -36,10 +48,10 @@ const CreatePatient = () => {
       esr: { value: '', unit: '', range: '', options: ['1-13 male', '0-20 female'] },
     },
     lipidProfile: {
-      cholesterolTotal: { value: '', unit: 'mg/dL', options: ['Desirable: Up to 200', 'Borderline High: 200-239', 'High: >250'] },
-      triglycerides: { value: '', unit: 'mg/dL', options: ['Normal: <150', 'Borderline: 150-199', 'High: 200-499', 'Very High: >500'] },
-      hdlCholesterol: { value: '', unit: 'mg/dL', range: 'Male: 35-70, Female: 35-90' },
-      ldlCholesterol: { value: '', unit: 'mg/dL', options: ['Low Risk: <100', 'Normal Risk: 130-160', 'High Risk: >160'] },
+      cholesterolTotal: { value: '', unit: 'mg/dL', range: '', options: ['Desirable: Up to 200', 'Borderline High: 200-239', 'High: >250'] },
+      triglycerides: { value: '', unit: 'mg/dL', range: '', options: ['Normal: <150', 'Borderline: 150-199', 'High: 200-499', 'Very High: >500'] },
+      hdlCholesterol: { value: '', unit: 'mg/dL', range: '', options: ['Male: 35-70', 'Female: 35-90'] },
+      ldlCholesterol: { value: '', unit: 'mg/dL', range: '', options: ['Low Risk: <100', 'Normal Risk: 130-160', 'High Risk: >160'] },
       vldlCholesterol: { value: '', unit: 'mg/dL', range: '<40' },
       cholHdlCholRatio: { value: '', unit: 'mg/dL', range: '<4.30' },
       ldlHdlCholRatio: { value: '', unit: 'mg/dL', range: '0.3' },
@@ -61,17 +73,14 @@ const CreatePatient = () => {
       hivFirst: { value: '', unit: 'fl', range: 'Non - Reactive' },
       hivSecond: { value: '', unit: 'fl', range: 'Non - Reactive' },
       HBA1C: { value: '', unit: '%', options: ['Non-Diabetic: 4-6', 'Excellent Control: 6-7', 'Fair to Good Control: 7-8', 'Unsatisfactory Control: 8-10', 'Poor Control: >10'] },
-    },
-    medicalHistory: {
-      currentMedication: { value: '', range: '', unit: '' },
-    },
+    }
   });
-
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  const bloodGroups = ['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'AB-', 'O', '-O'];
+  const bloodGroups = ['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'AB-', 'O', 'O-'];
+
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     const file = files[0];
@@ -119,7 +128,6 @@ const CreatePatient = () => {
       setFormData({ ...formData, [name]: value });
     }
   };
-  
   const handleSubmit = async (e) => {
     const user = localStorage.getItem('user');
     const token = user ? JSON.parse(user).token : null;
@@ -588,43 +596,43 @@ const CreatePatient = () => {
                   label: 'Cholesterol - Total',
                   name: 'cholesterolTotal',
                   unit: 'mg/dL',
-                  options: ['Desirable: Up to 200', 'Borderline High: 200-239', 'High: >250']
+                  options: ['Desirable: Up to 200', 'Borderline High: 200-239', 'High: >250'],
                 },
                 {
                   label: 'Triglycerides',
                   name: 'triglycerides',
                   unit: 'mg/dL',
-                  options: ['Normal: <150', 'Borderline: 150-199', 'High: 200-499', 'Very High: >500']
+                  options: ['Normal: <150', 'Borderline: 150-199', 'High: 200-499', 'Very High: >500'],
                 },
                 {
                   label: 'HDL Cholesterol',
                   name: 'hdlCholesterol',
                   unit: 'mg/dL',
-                  options: ['Male: 35-70', 'Female: 35-90']
+                  options: ['Male: 35-70', 'Female: 35-90'],
                 },
                 {
                   label: 'LDL Cholesterol',
                   name: 'ldlCholesterol',
                   unit: 'mg/dL',
-                  options: ['Low Risk: <100', 'Normal Risk: 130-160', 'High Risk: >160']
+                  options: ['Low Risk: <100', 'Normal Risk: 130-160', 'High Risk: >160'],
                 },
                 {
                   label: 'VLDL Cholesterol',
                   name: 'vldlCholesterol',
                   unit: 'mg/dL',
-                  range: '<40'
+                  range: '<40', // no options
                 },
                 {
                   label: 'Cholesterol/HDL Chol Ratio',
                   name: 'cholHdlCholRatio',
                   unit: 'mg/dL',
-                  range: '< 4.30'
+                  range: '< 4.30', // no options
                 },
                 {
                   label: 'LDL Chol/HDL Chol Ratio',
                   name: 'ldlHdlCholRatio',
                   unit: 'mg/dL',
-                  range: '0.3'
+                  range: '0.3', // no options
                 },
               ].map((test) => (
                 <tr key={test.name} className="border border-gray-300">
@@ -657,7 +665,14 @@ const CreatePatient = () => {
                         ))}
                       </select>
                     ) : (
-                      <span>{test.range}</span>
+                      <input
+                        type="text"
+                        name={`lipidProfile.${test.name}.range`}
+                        value={formData.lipidProfile[test.name]?.range || ''}
+                        onChange={handleChange}
+                        placeholder={`Enter Range for ${test.label}`}
+                        className="w-full border p-2"
+                      />
                     )}
                   </td>
                 </tr>
@@ -754,61 +769,6 @@ const CreatePatient = () => {
             </tbody>
           </table>
 
-          {/* Medical History Table */}
-          <h2 className="text-lg font-semibold mt-8 mb-4">Medical History</h2>
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-200 text-left">
-                <th className="p-2 border border-gray-300 font-semibold">Name of Condition</th>
-                <th className="p-2 border border-gray-300 font-semibold">Observed Values</th>
-                <th className="p-2 border border-gray-300 font-semibold">Unit</th>
-                <th className="p-2 border border-gray-300 font-semibold">Normal Range</th>
-              </tr>
-            </thead>
-            <tbody>
-              {['currentMedication', 'previousCondition', 'vaccination'].map((subfield) => (
-                <tr key={subfield}>
-                  <td className="p-2 border border-gray-300">{subfield.replace(/([A-Z])/g, ' $1')}</td>
-                  <td className="p-2 border border-gray-300">
-                    <input
-                      type="text"
-                      id={`${subfield}Value`}
-                      name={`medicalHistory.${subfield}.value`}
-                      value={formData.medicalHistory[subfield]?.value || ''}
-                      onChange={handleChange}
-                      placeholder="Value"
-                      required
-                      className="w-full border p-2"
-                    />
-                  </td>
-                  <td className="p-2 border border-gray-300">
-                    <input
-                      type="text"
-                      id={`${subfield}Unit`}
-                      name={`medicalHistory.${subfield}.unit`}
-                      value={formData.medicalHistory[subfield]?.unit || ''}
-                      onChange={handleChange}
-                      placeholder="Unit"
-                      required
-                      className="w-full border p-2"
-                    />
-                  </td>
-                  <td className="p-2 border border-gray-300">
-                    <input
-                      type="text"
-                      id={`${subfield}Range`}
-                      name={`medicalHistory.${subfield}.range`}
-                      value={formData.medicalHistory[subfield]?.range || ''}
-                      onChange={handleChange}
-                      placeholder="Range"
-                      required
-                      className="w-full border p-2"
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
           {/* Document File Field */}
           {/* Document Upload */}
           <div>

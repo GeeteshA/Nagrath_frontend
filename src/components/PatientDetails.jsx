@@ -31,13 +31,13 @@ const PatientDetails = () => {
         if (storedUser?.token) {
           const token = storedUser.token;
           const data = await getPatientById(id, token);
+          console.log('Patient data:', data);  // Log the entire response
           setPatient({
             ...data,
             urineTest: data.urineTest || {},
             bloodCbc: data.bloodCbc || {},
             lipidProfile: data.lipidProfile || {},
-            tshTest: data.tshTest || {},
-            medicalHistory: data.medicalHistory || {},
+            tshTest: data.tshTest || {}
           });
           
         } else {
@@ -153,8 +153,8 @@ const PatientDetails = () => {
             {renderTestRow("Hemoglobin", patient.hemoglobin)}
             {renderTestRow("Blood Pressure", patient.bloodPressure)}
             {renderTestRow("Heart Rate", patient.heartRate)}
-            {renderTestRow("Calcium", patient.calcium)}
             {renderTestRow("Fasting Blood Sugar", patient.fastingBloodSugar)}
+            {renderTestRow("Calcium", patient.calcium)}
           </TableBody>
         </Table>
       </TableContainer>
@@ -264,26 +264,6 @@ const PatientDetails = () => {
             {renderTestRow("Platelet count", patient.tshTest?.plateletCount)}
             {renderTestRow("Mean Platelet Volume (MPV)", patient.tshTest?.mpv)}
             {renderTestRow("Plateletcrit", patient.tshTest?.plateletcrit)}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* Medical History Table */}
-      <TableContainer component={Paper} className="p-4 mb-6">
-        <Typography variant="h6" gutterBottom>Medical History</Typography>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell className="border border-gray-400"><strong>Category</strong></TableCell>
-              <TableCell className="border border-gray-400"><strong>Value</strong></TableCell>
-              <TableCell className="border border-gray-400"><strong>Range</strong></TableCell>
-              <TableCell className="border border-gray-400"><strong>Unit</strong></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {renderTestRow("Current Medication", patient.medicalHistory?.currentMedication)}
-            {renderTestRow("Previous Condition", patient.medicalHistory?.previousCondition)}
-            {renderTestRow("Vaccination", patient.medicalHistory?.vaccination)}
           </TableBody>
         </Table>
       </TableContainer>
