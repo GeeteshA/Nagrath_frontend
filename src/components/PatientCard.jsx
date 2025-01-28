@@ -13,7 +13,7 @@ const PatientCard = ({ patient }) => {
   return (
     <div ref={cardRef} className="p-6 bg-white shadow-md rounded-lg flex items-center justify-between max-w-3xl mx-auto">
       {/* Patient Photo */}
-      <div className="flex items-center">
+      {/* <div className="flex items-center">
         {patient.photo ? (
           <img
             src={patient.photo}
@@ -25,7 +25,7 @@ const PatientCard = ({ patient }) => {
             <span className="text-gray-500">No photo available</span>
           </div>
         )}
-      </div>
+      </div> */}
 
       {/* Patient Details */}
       <div className="flex-1 mx-6">
@@ -41,12 +41,12 @@ const PatientCard = ({ patient }) => {
       </div>
 
       {/* Print Button */}
-      {/* <button
+      <button
         onClick={handlePrint}
         className="mt-4 ml-auto bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
       >
         Print   
-      </button> */}
+      </button>
     </div>
   );
 };
