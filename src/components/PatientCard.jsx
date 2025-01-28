@@ -6,9 +6,9 @@ import PatientQR from './PatientQR';
 const PatientCard = ({ patient }) => {
   const cardRef = useRef();
 
-  // const handlePrint = useReactToPrint({
-  //   content: () => cardRef.current,
-  // });
+  const handlePrint = useReactToPrint({
+    content: () => cardRef.current,
+  });
 
   return (
     <div ref={cardRef} className="p-6 bg-white shadow-md rounded-lg flex items-center justify-between max-w-3xl mx-auto">
