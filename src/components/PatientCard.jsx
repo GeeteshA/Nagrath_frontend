@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-// import { useReactToPrint } from 'react-to-print';
+import { useReactToPrint } from 'react-to-print';
 import PatientQR from './PatientQR';
 
 
